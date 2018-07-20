@@ -11,7 +11,10 @@ const userSchema = new Schema({
         book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
         segment: { type: mongoose.Schema.Types.ObjectId, ref: 'Segment' },
         whetherOrNotToRead:{type:Boolean,default:false},
-        like:{type:Boolean,default:false}
+        like:{type:Boolean,default:false},
+        currentSegment:{type:Number,default:0},
+        totalSegment:{type:Number,default:0}
+
 
 
     }],
