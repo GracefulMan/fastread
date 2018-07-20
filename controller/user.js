@@ -214,34 +214,38 @@ const updateWords = async (ctx) => {
 const updateBookProgress = async (ctx) => {
     let updateBook = ctx.request.body.book;
     let updateProgress = ctx.request.body.segment;
-    try {
-        let book = await BookModel.findById(updateBook)
-        if (book.segments.indexOf(updateProgress.toString()) < 0) {
+    try{
+    
+        let book = await BookModel.findById(updateBook);
+        let index=book.segments.indexOf(updateProgress.toString());
+        if ( index< 0) {
             ctx.status = 401
             ctx.body = { error: "Invalid segment" }
             return;
         }
         let judge=false;
-        if(book.segments[book.segments.length-1]==updateBookProgress.toString()){
+        let segmentLength=book.segments.length;
+        if(book.segments[segmentLength-1]==updateProgress.toString()){
             judge =true;
         }
-
         let token = jwt.getToken(ctx)
+        console.log(segmentLength,index);
         let userId = token.id;
-        let user = await UserModel.findById(userId);
-        for (var i = 0; i < user.books.length; i++) {
-            if (String(user.books[i].book) === updateBook) {
-                user.books[i].segment = updateProgress;
-                user.books[i].whetherOrNotToRead=judge;
-            }
-        }
-        user = await user.save();
+        console.log(updateProgress);
+        await UserModel.update(
+            {"_id":userId,
+            "books":{$elemMatch: {book:updateBook}}},
+            {$set:{"books.$.whetherOrNotToRead":judge,"books.$.currentSegment":index,
+            "books.$.totalSegment":segmentLength ,
+            "books.$.segment":updateProgress
+            }})   
         ctx.status = 200;
         ctx.body = {};
-    } catch (error) {
-        ctx.status = 401;
-        ctx.body = { error: "error" }
     }
+    catch(error){
+        ctx.body={error:"error"};
+        ctx.status = 401;
+    }  
 }
 
 const addBook = async (ctx) => {
