@@ -248,7 +248,9 @@ const addBook = async (ctx) => {
     // TODO: use user token
     let newBookId = ctx.request.body.book
     try {
-        let book = await BookModel.findById(newBookId)
+        let book = await BookModel.findById(newBookId);
+        let num = book.numberOfReading+1;
+        await BookModel.update({"_id":newBookId},{$set:{"numberOfReading":num}});
         let token = jwt.getToken(ctx)
         let userId = token.id;
         let user = await UserModel.findById(userId);
@@ -258,10 +260,12 @@ const addBook = async (ctx) => {
                 ctx.throw(400, 'The book has already been added in user\'s read list!')
             }
         });
+        let totalSegmentLength=book.segments.length;
 
         user.books.push({
             book: newBookId,
-            segment: book.segments[0]
+            segment: book.segments[0],
+            totalSegment:totalSegmentLength
         })
         user = await user.save();
         ctx.status = 200;
