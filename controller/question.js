@@ -11,8 +11,6 @@ const path = require('path');
 const generateQuestion = async(ctx)=>{
     try
     {
-        // let info = [];
-        let startTime = new Date();
         let segmentId = ctx.request.body.segment;
         let segmentObj = await SegmentModel.findById(segmentId).exec();
         let segment = segmentObj["content"]
